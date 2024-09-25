@@ -1,0 +1,67 @@
+module alu (
+    input a[16],
+    input b[16],
+    input alufn_signal[6],
+    output out[16],
+    output z,
+    output v,
+    output n
+) {
+    
+    sig outSig[16]
+    
+    
+    always {
+        
+        z = 0
+        v = 0
+        n = 0
+        
+        case(alufn_signal){
+            6h00: // ADD
+                outSig = a + b
+                z = ~|outSig
+                v = (a[15] & (b[15] ^ alufn_signal[0]) & !outSig[15]) | (!a[15] & !(b[15] ^ alufn_signal[0]) & outSig[15]) 
+                n = outSig[15]
+            6h01: // SUB
+                outSig = a - b
+                z = ~|outSig
+                v = (a[15] & (b[15] ^ alufn_signal[0]) & !outSig[15]) | (!a[15] & !(b[15] ^ alufn_signal[0]) & outSig[15]) 
+                n = outSig[15]   
+            6h02: // MUL
+                outSig = a * b 
+            6h18: // BITWISE AND
+                outSig = a & b 
+            6h1E: // BITWISE OR 
+                outSig = a | b 
+            6h16: // BITWISE XOR
+                outSig = a ^ b 
+            6h1A: // "A"
+                outSig = a
+            6h20: // SHL 
+                outSig = a << b[3:0]
+            6h21: // SHR 
+                outSig = a >> b[3:0]
+            6h23: // SRA 
+                outSig = a >>> b[3:0]
+            6h33: // CMPEQ 
+                outSig = a == b 
+            6h35: // CMPLT 
+                outSig = a < b 
+            6h37: // CMPLE
+                outSig = a <= b
+            
+            
+            default:
+                outSig = 0
+           
+            
+        }
+        
+
+        out = outSig
+        
+        
+        
+    }
+}

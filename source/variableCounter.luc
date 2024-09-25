@@ -1,0 +1,47 @@
+module variableCounter 
+#(
+    SEED = 678120348,
+    SLOW_CLOCK_DIV ~ 26,
+    FAST_CLOCK_DIV ~ 21
+)
+(
+    input clk,  // clock
+    input rst,
+    output out,
+    output debug[16]
+) {
+    
+    
+    .clk(clk){
+        edgeDetector edge_detector_next
+        edgeDetector edge_detector_seed
+        dff seed[16] //don't reset the seed because we don't want the same random number each time we press reset
+        
+        .rst(rst){
+            counter fastclock(#SIZE(1),#DIV(FAST_CLOCK_DIV)) 
+            counter slowclock(#SIZE(1), #DIV(SLOW_CLOCK_DIV))
+            pn_gen random_number
+        }
+    }
+    
+    sig temp_pointer[4]
+    
+    always {
+        out = 0
+        random_number.seed = seed.q
+        edge_detector_next.in = slowclock.value
+        edge_detector_seed.in = fastclock.value
+        
+        random_number.next = edge_detector_next.out
+        temp_pointer = random_number.num[3:0]
+        debug = random_number.num[15:0]
+        
+        if(edge_detector_seed.out){
+            seed.d = seed.q + 1
+        }
+        
+        out = seed.q[temp_pointer] // select LSB as output signal
+        
+        
+    }
+}
