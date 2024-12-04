@@ -1,4 +1,4 @@
-module gameMiniBeta #(
+module game_mini_beta #(
     SLOW_CLOCK_DIV ~ 26 : SLOW_CLOCK_DIV > 0,
     FAST_CLOCK_DIV ~ 21 : FAST_CLOCK_DIV > 0
 )(
@@ -27,22 +27,22 @@ module gameMiniBeta #(
     alu game_alu
     
     .clk(clk){
-        edgeDetector edge_detector_variableCounter (#RISE(1), #FALL(0))
-        edgeDetector game_timer_detector(#RISE(1), #FALL(0))
+        edge_detector edge_detector_variableCounter (#RISE(1), #FALL(0))
+        edge_detector game_timer_detector(#RISE(1), #FALL(0))
         
         .rst(rst){
-            gameCU game_controlunit
-            gameMiniRegfiles players
+            game_cu game_controlunit
+            game_mini_regfiles players
             
-            variableCounter vc(#SLOW_CLOCK_DIV(SLOW_CLOCK_DIV), #FAST_CLOCK_DIV(FAST_CLOCK_DIV))
-            counter gameTimer(#SIZE(1),#DIV(SLOW_CLOCK_DIV)) 
+            variable_counter vc(#SLOW_CLOCK_DIV(SLOW_CLOCK_DIV), #FAST_CLOCK_DIV(FAST_CLOCK_DIV))
+            counter game_timer(#SIZE(1),#DIV(SLOW_CLOCK_DIV)) 
             
         }
     }
     always {
         
         //edge detectors
-        game_timer_detector.in = gameTimer.value // 30 second timer detector
+        game_timer_detector.in = game_timer.value // 30 second timer detector
         edge_detector_variableCounter.in = vc.out // random counter increase signal 
         
         //pass timer and counter signals to CU unit 
@@ -108,7 +108,7 @@ module gameMiniBeta #(
         timer_out = players.timer
         p1_out = players.all_scores[15:0]
         p2_out = players.all_scores[31:16]
-        debug_slowclock = gameTimer.value
+        debug_slowclock = game_timer.value
         debug_vcclock = vc.out
         
     }

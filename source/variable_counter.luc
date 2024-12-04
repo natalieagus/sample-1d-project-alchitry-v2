@@ -1,4 +1,4 @@
-module variableCounter 
+module variable_counter 
 #(
     SEED = 678120348,
     SLOW_CLOCK_DIV ~ 26,
@@ -13,8 +13,8 @@ module variableCounter
     
     
     .clk(clk){
-        edgeDetector edge_detector_next
-        edgeDetector edge_detector_seed
+        edge_detector edge_detector_next
+        edge_detector edge_detector_seed
         dff seed[16] //don't reset the seed because we don't want the same random number each time we press reset
         
         .rst(rst){

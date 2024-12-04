@@ -1,20 +1,20 @@
 {
     "project": {
-        "type": "V1.1",
+        "type": "V1.2",
         "projectName": "CounterGame",
         "board": "Alchitry Au",
         "sourceFiles": [
             {
                 "file": {
                     "type": "DiskFile",
-                    "path": "source/alchitryTop.luc"
+                    "path": "source/alchitry_top.luc"
                 },
                 "top": true
             },
             {
                 "file": {
                     "type": "Component",
-                    "path": "Conditioning/resetConditioner.luc"
+                    "path": "Conditioning/reset_conditioner.luc"
                 }
             },
             {
@@ -26,7 +26,7 @@
             {
                 "file": {
                     "type": "Component",
-                    "path": "Pulses/edgeDetector.luc"
+                    "path": "Pulses/edge_detector.luc"
                 }
             },
             {
@@ -38,25 +38,25 @@
             {
                 "file": {
                     "type": "DiskFile",
-                    "path": "source/gameMiniRegfiles.luc"
+                    "path": "source/game_mini_regfiles.luc"
                 }
             },
             {
                 "file": {
                     "type": "DiskFile",
-                    "path": "source/gameMiniBeta.luc"
+                    "path": "source/game_mini_beta.luc"
                 }
             },
             {
                 "file": {
                     "type": "DiskFile",
-                    "path": "source/gameCU.luc"
+                    "path": "source/game_cu.luc"
                 }
             },
             {
                 "file": {
                     "type": "DiskFile",
-                    "path": "source/multiSevenSeg.luc"
+                    "path": "source/multi_seven_seg.luc"
                 }
             },
             {
@@ -68,7 +68,7 @@
             {
                 "file": {
                     "type": "DiskFile",
-                    "path": "source/sevenSeg.luc"
+                    "path": "source/seven_seg.luc"
                 }
             },
             {
@@ -80,25 +80,25 @@
             {
                 "file": {
                     "type": "Component",
-                    "path": "Conditioning/buttonConditioner.luc"
+                    "path": "Conditioning/button_conditioner.luc"
                 }
             },
             {
                 "file": {
                     "type": "DiskFile",
-                    "path": "source/variableCounter.luc"
+                    "path": "source/variable_counter.luc"
                 }
             },
             {
                 "file": {
                     "type": "DiskFile",
-                    "path": "source/pnGen.luc"
+                    "path": "source/pn_gen.luc"
                 }
             },
             {
                 "file": {
                     "type": "Component",
-                    "path": "Miscellaneous/binToDec.luc"
+                    "path": "Miscellaneous/bin_to_dec.luc"
                 }
             }
         ],
