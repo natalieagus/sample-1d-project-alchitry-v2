@@ -16,3 +16,9 @@
 - Player 1 Score: `io_led[0]`
 - Player 2 Score: `io_led[1]`
 - If Player 1 wins, all leds in `io_led[0]` will be illuminated. Similarly with Player 2.
+
+## Important Notice
+
+This repository is meant to serve as a sample repository for 50.002 1D project. Its ALU is implemented using Lucid/Verilog math and comparison operators. The game is FSM-based and is sufficient to gain perfect score given that the hardware connections are done properly and the enclosure of the prototype is acceptable.
+
+For 50.002 1D project, you are **not** allowed to do this, and should implement your ALU following Lab 3 closely using combinational logic units.
