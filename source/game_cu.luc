@@ -3,7 +3,7 @@ module game_cu (
     input rst,  // reset
     input increase_counter,
     input decrease_timer,
-    input regfile_datain[16], //direct reading of regfile data from read_address_b
+    input regfile_rd2[32], //direct reading of regfile data from rd2
     
     input p1_button,
     input p2_button,
@@ -12,10 +12,10 @@ module game_cu (
     output asel[3],
     output bsel[3],
     output alu_out_sel[2],
-    output regfile_write_address[4],
-    output regfile_read_address_a[4],
-    output regfile_read_address_b[4],
-    output we_regfile,
+    output regfile_wa[3],
+    output regfile_ra1[3],
+    output regfile_ra2[3],
+    output regfile_we,
     output decimal_counter_increase,
     output decimal_counter_rst,
     output debug[4]
@@ -60,10 +60,10 @@ module game_cu (
         alufn = 0
         asel = 0 
         bsel = 0
-        we_regfile = 0
-        regfile_write_address = b1111
-        regfile_read_address_a = b0000
-        regfile_read_address_b = b0000
+        regfile_we = 0
+        regfile_wa = d6 
+        regfile_ra1 = d0
+        regfile_ra2 = d0
         alu_out_sel = 0
         
         debug = b0000
@@ -83,11 +83,11 @@ module game_cu (
                 GameStates.START_SET_TIMER: 
                     alufn = b011010                             //A
                     asel = b11                                  //30
-                    we_regfile = 1 
-                    regfile_write_address = b1000                     //timer reg
-                    regfile_read_address_b = b1000              //direct read (temp reg)
+                    regfile_we = 1 
+                    regfile_wa = d5                     //timer reg
+                    regfile_ra2 = d5              //direct read (temp reg)
                     //if counter is set
-                    if (regfile_datain[4]){                      //direct read in
+                    if (regfile_rd2[4]){                      //direct read in
                         game_fsm.d = GameStates.INC_COUNTER
                     }
                     else{
@@ -97,26 +97,26 @@ module game_cu (
                 GameStates.INC_COUNTER:
                     //set output and next state
                     alufn = b000000                             //ADD
-                    regfile_read_address_a = b0111              //counter reg
+                    regfile_ra1 = d4              //counter reg
                     bsel = b01                                  //constant 1 
                     asel = b00                                  
-                    we_regfile = 1
-                    regfile_write_address = b0111                     //counter reg 
+                    regfile_we = 1
+                    regfile_wa = d4                     //counter reg 
                     decimal_counter_increase = 1
                     game_fsm.d = GameStates.IDLE
                 
                 GameStates.CHECK_P1BUTTONCOUNT:
                     alufn = b110101                             //CMPLT
-                    regfile_read_address_a = b0010              //p1 button count reg
+                    regfile_ra1 = d2              //p1 button count reg
                     bsel = b11                                  //constant 3
                     asel = b00 
-                    we_regfile = 1
-                    regfile_write_address = b1111                     //temp reg
+                    regfile_we = 1
+                    regfile_wa = d6                     //temp reg
                     game_fsm.d = GameStates.BRANCH_P1BUTTON
                 
                 GameStates.BRANCH_P1BUTTON:
-                    regfile_read_address_b = b1111              //temp reg 
-                    if (regfile_datain[0]){                      //direct read in
+                    regfile_ra2 = d6              //temp reg 
+                    if (regfile_rd2[0]){                      //direct read in
                         game_fsm.d = GameStates.INCREASE_P1SCORE
                     }
                     else{
@@ -125,35 +125,35 @@ module game_cu (
                 
                 GameStates.INCREASE_P1SCORE:
                     alufn = b000000                           //ADD
-                    regfile_read_address_b = b0000            //P1 score reg 
-                    regfile_read_address_a = b0111            //counter reg 
+                    regfile_ra2 = d0            //P1 score reg 
+                    regfile_ra1 = d4            //counter reg 
                     bsel = b00                                //P1 score reg 
                     asel = b00                                //counter  reg
-                    we_regfile = 1                           
-                    regfile_write_address = b0000                   //P1 score reg
+                    regfile_we = 1                           
+                    regfile_wa = d0                   //P1 score reg
                     game_fsm.d = GameStates.INCREASE_P1BUTTONCOUNT
                 
                 GameStates.INCREASE_P1BUTTONCOUNT:
                     alufn = b000000
-                    regfile_read_address_b = b0010
+                    regfile_ra2 = d2
                     bsel = b00 // p1's button
                     asel = b01 // plus 1 
-                    we_regfile = 1 
-                    regfile_write_address = b0010
+                    regfile_we = 1 
+                    regfile_wa = d2
                     game_fsm.d = GameStates.RESET_COUNTER
                 
                 GameStates.CHECK_P2BUTTONCOUNT:
                     alufn = b110101                           //CMPLT
-                    regfile_read_address_a = b0011            //P2 button count reg
+                    regfile_ra1 = d3            //P2 button count reg
                     bsel = b11                                //constant 3
                     asel = b00 
-                    we_regfile = 1
-                    regfile_write_address = b1111                   //temp reg
+                    regfile_we = 1
+                    regfile_wa = d6                   //temp reg
                     game_fsm.d = GameStates.BRANCH_P2BUTTON 
                 
                 GameStates.BRANCH_P2BUTTON:
-                    regfile_read_address_b = b1111            //temp reg
-                    if (regfile_datain[0]){                    //direct read
+                    regfile_ra2 = d6            //temp reg
+                    if (regfile_rd2[0]){                    //direct read
                         game_fsm.d = GameStates.INCREASE_P2SCORE
                     }
                     else{
@@ -163,52 +163,52 @@ module game_cu (
                 GameStates.INCREASE_P2SCORE:
                     //set output and next state 
                     alufn = b000000                          //ADD
-                    regfile_read_address_b = b0001           //P2 score reg 
-                    regfile_read_address_a = b0111           //counter reg
+                    regfile_ra2 = d1           //P2 score reg 
+                    regfile_ra1 = d4           //counter reg
                     bsel = b00 
                     asel = b00 
-                    we_regfile = 1 
-                    regfile_write_address = b0001                 //P2 score reg
+                    regfile_we = 1 
+                    regfile_wa = d1                 //P2 score reg
                     game_fsm.d = GameStates.INCREASE_P2BUTTONCOUNT  
                 
                 GameStates.INCREASE_P2BUTTONCOUNT:
-                    alufn = b000000
-                    regfile_read_address_b = b0011          //P2 button reg
+                    alufn = b000000 // ADD
+                    regfile_ra2 = d3          //P2 button reg
                     bsel = b00                         
                     asel = b01                              //constant 1
-                    we_regfile = 1 
-                    regfile_write_address = b0011                 //P2 button reg
+                    regfile_we = 1 
+                    regfile_wa = d3                 //P2 button reg
                     game_fsm.d = GameStates.RESET_COUNTER
                 
                 GameStates.RESET_COUNTER:
                     alu_out_sel = b11                       //constant 0
-                    we_regfile = 1
-                    regfile_write_address = b0111                 //counter reg
+                    regfile_we = 1
+                    regfile_wa = d4                 //counter reg
                     decimal_counter_rst = 1
                     decimal_counter_increase = 0
                     game_fsm.d = GameStates.CHECK_P1P2BUTTONCOUNT 
                 
                 GameStates.DECREASE_GAMETIMER:
                     alufn = b000001                         //SUB
-                    regfile_read_address_a = b1000          //timer reg
+                    regfile_ra1 = d5          //timer reg
                     asel = b00 
                     bsel = b01                              //constant 1
-                    we_regfile = 1
-                    regfile_write_address = b1000
+                    regfile_we = 1
+                    regfile_wa = d5
                     game_fsm.d = GameStates.IDLE
                 
                 GameStates.CHECK_GAMETIMER:
                     alufn = b110011                         //CMPEQ
-                    regfile_read_address_a = b1000          //timer reg
+                    regfile_ra1 = d5          //timer reg
                     asel = b00
                     bsel = b10                              //constant 0
-                    we_regfile = 1
-                    regfile_write_address = b1111                 //temp eg 
+                    regfile_we = 1
+                    regfile_wa = d6                 //temp eg 
                     game_fsm.d = GameStates.BRANCH_GAMETIMER
                 
                 GameStates.BRANCH_GAMETIMER:
-                    regfile_read_address_b = b1111          //temp reg
-                    if (~regfile_datain[0]){                 //if timer is not zero
+                    regfile_ra2 = d6          //temp reg
+                    if (~regfile_rd2[0]){                 //if timer is not zero
                         game_fsm.d = GameStates.DECREASE_GAMETIMER
                     }
                     else{
@@ -217,54 +217,56 @@ module game_cu (
                 
                 GameStates.CHECK_P1P2BUTTONCOUNT:
                     alufn = b110011 //CMPEQ
-                    regfile_read_address_a = b0010         //P1 button reg
-                    regfile_read_address_b = b0011         //P2 button reg
+                    regfile_ra1 = d2         //P1 button reg
+                    regfile_ra2 = d3         //P2 button reg
                     asel = b00
                     bsel = b00
-                    we_regfile = 1
-                    regfile_write_address = b1111                //temp reg
+                    regfile_we = 1
+                    regfile_wa = d6                //temp reg
                     game_fsm.d = GameStates.BRANCHCHECK_P1P2BUTTONCOUNT
                 
                 GameStates.BRANCHCHECK_P1P2BUTTONCOUNT:
-                    regfile_read_address_b = b1111        //temp reg
-                    if(regfile_datain[0]){  
+                    regfile_ra2 = d6        //temp reg
+                    if(regfile_rd2[0]){  
                         alufn = b110011                     //CMPEQ 
-                        regfile_read_address_a = b0010      //P1 button reg
+                        regfile_ra1 = d2      //P1 button reg
                         bsel = b11                          //constant 3
-                        we_regfile = 1
-                        regfile_write_address = b1111             //temp reg
+                        regfile_we = 1
+                        regfile_wa = d6             //temp reg
                         game_fsm.d = GameStates.BRANCH_P1BUTTONCOUNT  
                     }
                     else{
                         game_fsm.d = GameStates.IDLE
                     }
                 
+                
                 GameStates.BRANCH_P1BUTTONCOUNT:
-                    regfile_read_address_b = b1111       //temp reg
-                    if(regfile_datain[0]){
+                    regfile_ra2 = d6       //temp reg
+                    if(regfile_rd2[0]){
                         game_fsm.d = GameStates.CHECK_DRAW   
                     }
+                    
                     else{
                         game_fsm.d = GameStates.IDLE
                     }
                 
                 GameStates.CHECK_DRAW:
                     alufn = b110011 //CMPEQ
-                    regfile_read_address_a = b0000      //P1 score reg
-                    regfile_read_address_b = b0001      //P2 score reg
+                    regfile_ra1 = d0      //P1 score reg
+                    regfile_ra2 = d1      //P2 score reg
                     asel = b00
                     bsel = b00
-                    we_regfile = 1
-                    regfile_write_address = b1111             //temp reg
+                    regfile_we = 1
+                    regfile_wa = d6             //temp reg
                     game_fsm.d = GameStates.BRANCH_DRAW
                 
                 GameStates.BRANCH_DRAW:
-                    regfile_read_address_b = b1111      //temp reg
-                    if (regfile_datain[0]){
+                    regfile_ra2 = d6      //temp reg
+                    if (regfile_rd2[0]){
                         //its draw
                         alu_out_sel = b10                //draw signal
-                        we_regfile = 1
-                        regfile_write_address = b0000          //P1 score reg
+                        regfile_we = 1
+                        regfile_wa = d0          //P1 score reg
                         game_fsm.d = GameStates.DRAW
                     }
                     else{
@@ -273,23 +275,23 @@ module game_cu (
                 
                 GameStates.DRAW:
                     alu_out_sel = b10                //draw signal
-                    we_regfile = 1 
-                    regfile_write_address = b0001          //P2 score reg
+                    regfile_we = 1 
+                    regfile_wa = d1          //P2 score reg
                     game_fsm.d = GameStates.GAMEOVER  
                 
                 GameStates.CHECK_WINNER:
                     alufn = b110101                 //CMPLT
-                    regfile_read_address_a = b0000  //P1 score reg 
-                    regfile_read_address_b = b0001  //P2 score reg
+                    regfile_ra1 = d0  //P1 score reg 
+                    regfile_ra2 = d1  //P2 score reg
                     asel = b00
                     bsel = b00
-                    we_regfile = 1
-                    regfile_write_address = b1111         //temp reg
+                    regfile_we = 1
+                    regfile_wa = d6         //temp reg
                     game_fsm.d = GameStates.BRANCH_WINNER
                 
                 GameStates.BRANCH_WINNER:
-                    regfile_read_address_b = b1111 //temp reg
-                    if (regfile_datain[0]){
+                    regfile_ra2 = d6 //temp reg
+                    if (regfile_rd2[0]){
                         //P2 Wins
                         game_fsm.d = GameStates.P2WINS 
                     }
@@ -300,32 +302,31 @@ module game_cu (
                 
                 
                 GameStates.P2WINS:
-                    we_regfile = 1
-                    regfile_write_address = b0001     //P2 score reg
+                    regfile_we = 1
+                    regfile_wa = d1     //P2 score reg
                     alu_out_sel = b01           //P2 winning signal
                     game_fsm.d = GameStates.P1LOSE 
                 
                 GameStates.P1WINS:
-                    we_regfile = 1
-                    regfile_write_address = b0000     //P1 score reg
+                    regfile_we = 1
+                    regfile_wa = d0     //P1 score reg
                     alu_out_sel = b01           //P1 winning signal
                     game_fsm.d = GameStates.P2LOSE 
                 
                 GameStates.P1LOSE:
-                    we_regfile = 1
-                    regfile_write_address = b0000     //P1 score reg
-                    alu_out_sel = b11           //P1 losingsignal
+                    regfile_we = 1
+                    regfile_wa = d0     //P1 score reg
+                    alu_out_sel = b11           //P1 losing signal
                     game_fsm.d = GameStates.GAMEOVER 
                 
                 GameStates.P2LOSE:
-                    we_regfile = 1
-                    regfile_write_address = b0001     //P2 score reg
+                    regfile_we = 1
+                    regfile_wa = d1     //P2 score reg
                     alu_out_sel = b11           //P2 losing signal
                     game_fsm.d = GameStates.GAMEOVER 
                 
                 
                 GameStates.GAMEOVER:
-                    debug = b1111
                     game_fsm.d = GameStates.GAMEOVER           
                 
                 GameStates.IDLE:
@@ -348,6 +349,6 @@ module game_cu (
                 
             }
         }
-            
-        }
+        
+    }
 }

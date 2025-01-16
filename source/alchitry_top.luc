@@ -30,7 +30,7 @@ module alchitry_top (
         
         .rst(rst){
             multi_seven_seg seg(#DIV(SEVEN_SEG_DIV))
-            game_mini_beta game_machine(#SLOW_CLOCK_DIV(SLOW_CLOCK_DIV), #FAST_CLOCK_DIV(FAST_CLOCK_DIV))
+            game_datapath game_datapath(#SLOW_CLOCK_DIV(SLOW_CLOCK_DIV), #FAST_CLOCK_DIV(FAST_CLOCK_DIV))
         }
         
     }
@@ -55,27 +55,20 @@ module alchitry_top (
         edge_dt_btn_p1.in = btn_cond_p1.out //get the edge of button press
         edge_dt_btn_p2.in = btn_cond_p2.out
         
-        game_machine.p1_button = edge_dt_btn_p1.out
-        game_machine.p2_button = edge_dt_btn_p2.out
+        game_datapath.p1_button = edge_dt_btn_p1.out
+        game_datapath.p2_button = edge_dt_btn_p2.out
         
         //update 7segments
         seg.values = 4x{{4b0}} // default to all 0 first
-        bin_to_dec_converter.value = game_machine.current_counter_out
+        bin_to_dec_converter.value = game_datapath.current_counter_out
         seg.values = bin_to_dec_converter.digits
 
-        //show the counter value at led 
-        if(io_button[0]){
-            io_led[2] = bin_to_dec_converter.digits[0]
-        }
-        else{
-            io_led[2] = game_machine.current_counter_out // show current counter value (to match with 7seg) 
-            
-        }
-        io_led[0] = game_machine.p1_out    // p1 score 
-        io_led[1] = game_machine.p2_out    // p2 score
-        led[0] = game_machine.debug_slowclock
-        led[1] = game_machine.debug_vcclock
-        led[7:2] = game_machine.timer_out 
+        io_led[2] = game_datapath.current_counter_out // show current counter value (to match with 7seg) 
+        io_led[0] = game_datapath.p1_out    // p1 score 
+        io_led[1] = game_datapath.p2_out    // p2 score
+        led[0] = game_datapath.debug_slowclock
+        led[1] = game_datapath.debug_vcclock
+        led[7:2] = game_datapath.timer_out 
         
         io_segment = ~seg.seg
         io_select = ~seg.sel

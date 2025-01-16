@@ -1,7 +1,7 @@
 {
     "project": {
-        "type": "V1.2",
-        "projectName": "CounterGame",
+        "type": "V1.3",
+        "projectName": "ScoreSnatcher",
         "board": "Alchitry Au",
         "sourceFiles": [
             {
@@ -33,18 +33,6 @@
                 "file": {
                     "type": "Component",
                     "path": "Miscellaneous/counter.luc"
-                }
-            },
-            {
-                "file": {
-                    "type": "DiskFile",
-                    "path": "source/game_mini_regfiles.luc"
-                }
-            },
-            {
-                "file": {
-                    "type": "DiskFile",
-                    "path": "source/game_mini_beta.luc"
                 }
             },
             {
@@ -100,6 +88,18 @@
                     "type": "Component",
                     "path": "Miscellaneous/bin_to_dec.luc"
                 }
+            },
+            {
+                "file": {
+                    "type": "DiskFile",
+                    "path": "source/game_regfiles.luc"
+                }
+            },
+            {
+                "file": {
+                    "type": "DiskFile",
+                    "path": "source/game_datapath.luc"
+                }
             }
         ],
         "constraintFiles": [
@@ -112,7 +112,7 @@
             {
                 "file": {
                     "type": "Component",
-                    "path": "Constraints/io.acf"
+                    "path": "Constraints/io_v1.acf"
                 }
             }
         ],
