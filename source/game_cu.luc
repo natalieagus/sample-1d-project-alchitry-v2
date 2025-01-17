@@ -16,8 +16,6 @@ module game_cu (
     output regfile_ra1[3],
     output regfile_ra2[3],
     output regfile_we,
-    output decimal_counter_increase,
-    output decimal_counter_rst,
     output debug[4]
 ) {
     
@@ -68,13 +66,10 @@ module game_cu (
         
         debug = b0000
         
-        decimal_counter_increase = 0
-        decimal_counter_rst = 0
         
         game_fsm.d = game_fsm.q
         if (rst){
             game_fsm.d = GameStates.START_SET_TIMER
-            decimal_counter_rst = 1
         }
         else{
             
@@ -102,7 +97,6 @@ module game_cu (
                     asel = b00                                  
                     regfile_we = 1
                     regfile_wa = d4                     //counter reg 
-                    decimal_counter_increase = 1
                     game_fsm.d = GameStates.IDLE
                 
                 GameStates.CHECK_P1BUTTONCOUNT:
@@ -184,8 +178,6 @@ module game_cu (
                     alu_out_sel = b11                       //constant 0
                     regfile_we = 1
                     regfile_wa = d4                 //counter reg
-                    decimal_counter_rst = 1
-                    decimal_counter_increase = 0
                     game_fsm.d = GameStates.CHECK_P1P2BUTTONCOUNT 
                 
                 GameStates.DECREASE_GAMETIMER:

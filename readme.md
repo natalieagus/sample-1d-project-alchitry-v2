@@ -1,4 +1,5 @@
-## **The Counter Game**
+## **Score Snatcher**
+This is 50.002 Instructor 1D project idea sample. 
 
 **Number of players:** 2 players
 
@@ -15,7 +16,11 @@
 
 - Player 1 Score: `io_led[0]`
 - Player 2 Score: `io_led[1]`
+- Player 1 button presses: led[7:6]
+- Player 2 button presses: led[5:4]
+- Game timer: io_led[2] 
 - If Player 1 wins, all leds in `io_led[0]` will be illuminated. Similarly with Player 2.
+- If both players draw, half of leds in io_led[0] and iio_led[1] will be illuminated.
 
 ## Important Notice
 

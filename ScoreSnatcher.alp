@@ -74,12 +74,6 @@
             {
                 "file": {
                     "type": "DiskFile",
-                    "path": "source/variable_counter.luc"
-                }
-            },
-            {
-                "file": {
-                    "type": "DiskFile",
                     "path": "source/pn_gen.luc"
                 }
             },
@@ -99,6 +93,12 @@
                 "file": {
                     "type": "DiskFile",
                     "path": "source/game_datapath.luc"
+                }
+            },
+            {
+                "file": {
+                    "type": "DiskFile",
+                    "path": "source/variable_timer.luc"
                 }
             }
         ],

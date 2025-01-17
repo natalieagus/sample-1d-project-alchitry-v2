@@ -8,16 +8,17 @@ module game_datapath#(
     input clk,  // clock
     input rst,  // reset
     
-    
-    output p1_out[16],
-    output p2_out[16],
-    output current_counter_out[16],
-    output timer_out[16],
-    output debug_slowclock,
-    output debug_vcclock,
-    
-    output decimal_counter_increase,
-    output decimal_counter_rst,
+    // output to LEDs/7segments
+    output p1_score_out[32],
+    output p2_score_out[32],
+    output p1_button_press_out[32],
+    output p2_button_press_out[32],
+    output current_counter_out[32],
+    output timer_out[32],
+    output slow_clock_out,
+    output variable_clock_out,
+        
+    // debug signals
     output debug_general[4]
 ) {
     
@@ -28,21 +29,18 @@ module game_datapath#(
     alu game_alu
     
     .clk(clk){
-        
-        
-        variable_counter vc(#SLOW_CLOCK_DIV(SLOW_CLOCK_DIV), #FAST_CLOCK_DIV(FAST_CLOCK_DIV), .rst(rst))
-        counter game_timer(#SIZE(1),#DIV(SLOW_CLOCK_DIV), .rst(rst)) 
-        
+        variable_timer variable_timer_clock(#FAST_CLOCK_DIV(FAST_CLOCK_DIV), .rst(rst))
+        counter game_timer_clock(#SIZE(1),#DIV(SLOW_CLOCK_DIV), .rst(rst)) 
         
         // edge detector declaration & connection with counters
-        edge_detector edge_detector_variable_counter (#RISE(1), #FALL(0), .in(vc.out))
-        edge_detector edge_detector_game_timer(#RISE(1), #FALL(0), .in(game_timer.value))
+        edge_detector edge_detector_variable_timer (#RISE(1), #FALL(0), .in(variable_timer_clock.out))
+        edge_detector edge_detector_game_timer(#RISE(1), #FALL(0), .in(game_timer_clock.value))
         
         game_cu game_cu(
             .p1_button(p1_button),
             .p2_button(p2_button),
             .rst(rst),
-            .increase_counter(edge_detector_variable_counter.out),
+            .increase_counter(edge_detector_variable_timer.out),
             .decrease_timer(edge_detector_game_timer.out)
             
         )
@@ -56,16 +54,12 @@ module game_datapath#(
         )
     }
     always {
+       
         
-        
-        //output of CU to increase 7segment
-        decimal_counter_increase = game_cu.decimal_counter_increase
-        decimal_counter_rst = game_cu.decimal_counter_rst
-        
-        //bootstrap rd2 output to CU for convenient branching conditions
+        // bootstrap rd2 output to CU for convenient branching conditions
         game_cu.regfile_rd2 = game_regfiles.rd2
         
-        //asel mux
+        // asel mux
         case(game_cu.asel){
             b00  : input_alu_a = game_regfiles.rd1
             b01  : input_alu_a = 1 
@@ -74,7 +68,7 @@ module game_datapath#(
                 input_alu_a = 0
         }
         
-        //bsel mux
+        // bsel mux
         case(game_cu.bsel){
             b00 : input_alu_b = game_regfiles.rd2
             b01 : input_alu_b = 1
@@ -85,29 +79,28 @@ module game_datapath#(
             
         }
         
-        //ALU
+        // alu
         game_alu.a = input_alu_a
         game_alu.b = input_alu_b
         game_alu.alufn_signal = game_cu.alufn
         
-        
-        //wdsel mux
+        // wdsel mux
         case (game_cu.alu_out_sel){
-            b01 : game_regfiles.data = b1111111111111111
-            b10 : game_regfiles.data = b0000000000001111
+            b01 : game_regfiles.data = hFFFF
+            b10 : game_regfiles.data = hF
             b11 : game_regfiles.data = 0
-            default : //b00
+            default : 
                 game_regfiles.data = game_alu.out
         }
         
         current_counter_out = game_regfiles.counter_out
-        
-        //for debugging
-        timer_out = game_regfiles.timer
-        p1_out = game_regfiles.all_scores[15:0]
-        p2_out = game_regfiles.all_scores[31:16]
-        debug_slowclock = game_timer.value
-        debug_vcclock = vc.out
+        timer_out = game_regfiles.timer_out
+        p1_score_out = game_regfiles.p1_score_out
+        p2_score_out = game_regfiles.p2_score_out
+        p1_button_press_out = game_regfiles.p1_button_press_out
+        p2_button_press_out = game_regfiles.p2_button_press_out
+        variable_clock_out = variable_timer_clock.out
+        slow_clock_out = game_timer_clock.value
         
         debug_general = game_cu.debug
         

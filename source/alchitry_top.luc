@@ -63,12 +63,13 @@ module alchitry_top (
         bin_to_dec_converter.value = game_datapath.current_counter_out
         seg.values = bin_to_dec_converter.digits
 
-        io_led[2] = game_datapath.current_counter_out // show current counter value (to match with 7seg) 
-        io_led[0] = game_datapath.p1_out    // p1 score 
-        io_led[1] = game_datapath.p2_out    // p2 score
-        led[0] = game_datapath.debug_slowclock
-        led[1] = game_datapath.debug_vcclock
-        led[7:2] = game_datapath.timer_out 
+        io_led[2] = game_datapath.timer_out // timer
+        io_led[0] = game_datapath.p1_score_out    // p1 score 
+        io_led[1] = game_datapath.p2_score_out    // p2 score
+        led[0] = game_datapath.slow_clock_out
+        led[1] = game_datapath.variable_clock_out
+        led[7:6] = game_datapath.p1_button_press_out
+        led[5:4] = game_datapath.p2_button_press_out
         
         io_segment = ~seg.seg
         io_select = ~seg.sel
