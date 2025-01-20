@@ -16,11 +16,9 @@ module game_regfiles (
     output p2_score_out[32],
     output p1_button_press_out[32],
     output p2_button_press_out[32],
-    output counter_out[32],
+    output counter_out[32]
     
-) 
-
-{
+) {
     .clk(clk){
         .rst(rst){
             dff p1_score[32](#INIT(0))
