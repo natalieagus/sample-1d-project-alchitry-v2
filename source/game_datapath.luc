@@ -82,7 +82,7 @@ module game_datapath#(
         // alu
         game_alu.a = input_alu_a
         game_alu.b = input_alu_b
-        game_alu.alufn_signal = game_cu.alufn
+        game_alu.alufn = game_cu.alufn
         
         // wdsel mux
         case (game_cu.alu_out_sel){

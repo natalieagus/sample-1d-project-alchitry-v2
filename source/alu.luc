@@ -1,7 +1,7 @@
 module alu (
     input a[32],
     input b[32],
-    input alufn_signal[6],
+    input alufn[6],
     output out[32],
     output z,
     output v,
@@ -17,16 +17,16 @@ module alu (
         v = 0
         n = 0
         
-        case(alufn_signal){
+        case(alufn){
             6h00: // ADD
                 out_sig = a + b
                 z = ~|out_sig
-                v = (a[31] & (b[31] ^ alufn_signal[0]) & !out_sig[31]) | (!a[31] & !(b[31] ^ alufn_signal[0]) & out_sig[31]) 
+                v = (a[31] & (b[31] ^ alufn[0]) & !out_sig[31]) | (!a[31] & !(b[31] ^ alufn[0]) & out_sig[31]) 
                 n = out_sig[31]
             6h01: // SUB
                 out_sig = a - b
                 z = ~|out_sig
-                v = (a[31] & (b[31] ^ alufn_signal[0]) & !out_sig[31]) | (!a[31] & !(b[31] ^ alufn_signal[0]) & out_sig[31]) 
+                v = (a[31] & (b[31] ^ alufn[0]) & !out_sig[31]) | (!a[31] & !(b[31] ^ alufn[0]) & out_sig[31]) 
                 n = out_sig[31]   
             6h02: // MUL
                 out_sig = a * b 
